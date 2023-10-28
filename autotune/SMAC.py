@@ -17,15 +17,21 @@ from smac.facade.smac_hpo_facade import SMAC4HPO
 from smac.scenario.scenario import Scenario
 from .knobs import initialize_knobs
 from smac.utils.io.output_directory import create_output_directory
+
+import ConfigSpace as CS
+import ConfigSpace.hyperparameters as CSH
+
+from adapters import *
+
 boston = load_boston()
 
 
 class SMAC(object):
-    def __init__(self, knobs_detail):
+    def __init__(self, knobs_detail, lower_dim):
         self.cs = ConfigurationSpace()
         self.scenario = None
         self.knobs_detail = knobs_detail
-
+        self.lower_dim_info = lower_dim_info
     def init_Configuration(self):
         KNOBS = list(self.knobs_detail.keys())
         for idx in range(len(KNOBS)):
@@ -49,6 +55,7 @@ class SMAC(object):
                 knob = UniformFloatHyperparameter(name, min_val, max_val, default_value=value['default'])
             self.cs.add_hyperparameter(knob)
 
+        self.cs = LinearEmbeddingConfigSpace.create()
         self.scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternative runtime)
                   "runcount-limit": 210,  # max. number of function evaluations; for this example set to a low number
                   "cs": self.cs,  # configuration space

@@ -425,7 +425,11 @@ class MySQLTuner:
         rh = None
         stats = None
         incumbent = None
-        tuner_SMAC = SMAC(self.env.knobs_detail)
+        lower_dim = {
+            "enabled" : True,
+            "target_dim" : 16
+        }
+        tuner_SMAC = SMAC(self.env.knobs_detail, lower_dim)
         tuner_SMAC.init_Configuration()
         ts = int(time.time())
         if self.restore_state is not '':
