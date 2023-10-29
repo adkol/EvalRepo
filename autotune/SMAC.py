@@ -56,6 +56,8 @@ class SMAC(object):
             self.cs.add_hyperparameter(knob)
         if self.lower_dim_info["enabled"]:
             self.cs = LinearEmbeddingConfigSpace.create(self.cs, 1, target_dim = self.lower_dim_info["target_dim"])
+            print("Finished converting SMAC to lower dimensions")
+            print(self.cs)
         self.scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternative runtime)
                   "runcount-limit": 210,  # max. number of function evaluations; for this example set to a low number
                   "cs": self.cs,  # configuration space

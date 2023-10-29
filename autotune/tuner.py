@@ -100,7 +100,10 @@ class MySQLTuner:
         if self.workload_map:
             self.mapper = WorkloadMapping(self.data_repo, self.env.knobs_detail, self.y_variable)
         self.rgpe = rgpe
-
+        self.lower_dim = {
+            "enabled" : True,
+            "target_dim" : 16
+        }
 
 
     def tune(self):
@@ -425,11 +428,8 @@ class MySQLTuner:
         rh = None
         stats = None
         incumbent = None
-        lower_dim = {
-            "enabled" : True,
-            "target_dim" : 16
-        }
-        tuner_SMAC = SMAC(self.env.knobs_detail, lower_dim)
+        
+        tuner_SMAC = SMAC(self.env.knobs_detail, self.lower_dim)
         tuner_SMAC.init_Configuration()
         ts = int(time.time())
         if self.restore_state is not '':
