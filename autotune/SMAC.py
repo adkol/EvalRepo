@@ -54,8 +54,8 @@ class SMAC(object):
                 min_val, max_val = value['min'], value['max']
                 knob = UniformFloatHyperparameter(name, min_val, max_val, default_value=value['default'])
             self.cs.add_hyperparameter(knob)
-
-        self.cs = LinearEmbeddingConfigSpace.create()
+        if self.lower_dim_info["enabled"]:
+            self.cs = LinearEmbeddingConfigSpace.create(self.cs, 1, target_dim = self.lower_dim_info["target_dim"])
         self.scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternative runtime)
                   "runcount-limit": 210,  # max. number of function evaluations; for this example set to a low number
                   "cs": self.cs,  # configuration space
