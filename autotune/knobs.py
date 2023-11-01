@@ -10,6 +10,8 @@ import os
 import re
 import pdb
 import ast
+import ConfigSpace as CS
+import ConfigSpace.hyperparameters as CSH
 ts = int(time.time())
 logger = logger.get_logger('autotune', 'log/tune_database_{}.log'.format(ts))
 INTERNAL_METRICS_LEN = 51
@@ -207,6 +209,75 @@ def init_knobs(num_total_knobs):
             i += 1
         else:
             break
+
+
+def low_level_project_input(target_dim, knobs, knob_details):
+    global KNOBS
+    global KNOB_DETAILS
+    # KNOBS = list(self.knobs_detail.keys())
+    cs = ConfigurationSpace()
+    for idx in range(len(knobs)):
+        name = knobs[idx]
+        value = knob_details[name]
+        knob_type = value['type']
+        if knob_type == 'enum':
+            knob = CategoricalHyperparameter(name, [ str(i) for i in value["enum_values"]], default_value=str(value['default']))
+        elif knob_type == 'integer':
+            min_val, max_val = value['min'], value['max']
+            if value.get('stride'):
+                knob = UniformIntegerHyperparameter(name, min_val, max_val, default_value=value['default'], q=value['stride'])
+            else:
+                if KNOB_DETAILS[name]['max'] > sys.maxsize:#name == "innodb_online_alter_log_max_size":
+                    knob = UniformIntegerHyperparameter(name, int(min_val / 1000), int(max_val / 1000),
+                                                        default_value=int(value['default'] / 1000))
+                else:
+                    knob = UniformIntegerHyperparameter(name, min_val, max_val, default_value=value['default'])
+        elif knob_type == 'float':
+            min_val, max_val = value['min'], value['max']
+            knob = UniformFloatHyperparameter(name, min_val, max_val, default_value=value['default'])
+        cs.add_hyperparameter(knob)
+    cs = LinearEmbeddingConfigSpace.create(cs, 1, target_dim = target_dim)
+    print("Coverted DDPG ConfigSpace into lower dimension")
+    print(cs)
+    # self.scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternative runtime)
+    #             "runcount-limit": 210,  # max. number of function evaluations; for this example set to a low number
+    #           "cs": self.cs,  # configuration space
+    #           "deterministic": "true",
+    #           "memory_limit": 3072,  # adapt this to reasonable value for your hardware
+    #           "output_dir": "restore_me",
+    #             })
+
+
+
+    # Need to check if this modifies global KNOBS defined above
+    # 
+    print("Coverting from Configspace back to dict...")
+    hps = cs.get_hyperparameters()
+    transformed_knobs = []
+    transformed_knob_info = dict()
+    for hp in hps:
+        
+        # if isinstance(hp, CategoricalHyperparameter):
+        #     name = hp.name
+        #     values = hp.items
+        #     transformed_knob_info[name] = [val for val in values]
+        #     transformed_knobs.append(name)
+        # elif isinstance(hp, UniformIntegerHyperparameter):
+        #     name = hp.name
+
+        # Should always be a float
+        if isinstance(hp, UniformFloatHyperparameter):
+            name = hp.name   
+            transformed_knobs.append(name)
+            transformed_knob_info[name] = ['float', [hp.min, hp.max, hp.val]]    # Check to see if hp.val is how you get value oof param, and also whether [min, max, value] is how KNOB_INFO is structured
+        else:
+            print("Something is wrong, transformed space should only be floats")
+        
+    KNOB_DETAILS = transformed_knob_info
+    KNOBS = transformed_knobs
+
+
+
 
 
 def gen_continuous(action):
