@@ -431,6 +431,7 @@ class MySQLTuner:
         
         tuner_SMAC = SMAC(self.env.knobs_detail, self.lower_dim)
         tuner_SMAC.init_Configuration()
+        input_space_adapter = tuner_SMAC.get_input_space_adapter()
         ts = int(time.time())
         if self.restore_state is not '':
             rh, stats, incumbent, tuner_SMAC.scenario = tuner_SMAC.restore(self.restore_state, ts, self.load_num)

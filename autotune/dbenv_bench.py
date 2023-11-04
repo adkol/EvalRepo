@@ -98,6 +98,7 @@ class BenchEnv(DBEnv):
                  knobs_config,
                  num_metrics,
                  model_path,
+                 input_space_adapter=None,
                  database='mysql',
                  log_path='',
                  threads=8,
@@ -432,12 +433,18 @@ class BenchEnv(DBEnv):
 
     def step_SMAC(self, knobs, seed):
         #f = open(self.lhs_log, 'a')
+
+        #Unprojects lower dim points back to knobs. Will work if knobs arg is Configuration object, not sure if it is though
+        if self.input_space_adapter:
+            knobs = self.input_space_adapter.unproject_point(knobs)
+
         knobs_display = {}
         for key in knobs.keys():
             knobs_display[key] = knobs[key]
         for k in knobs_display.keys():
             if self.knobs_detail[k]['type'] == 'integer' and self.knobs_detail[k]['max'] > sys.maxsize:
                 knobs_display[k] = knobs_display[k] * 1000
+
 
         logger.info('[SMAC][Episode: 1][Step: {}] knobs generated: {}'.format(self.step_count, knobs_display))
         external_metrics, internal_metrics, resource = self.step_GP(knobs_display)

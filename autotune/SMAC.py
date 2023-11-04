@@ -32,6 +32,7 @@ class SMAC(object):
         self.scenario = None
         self.knobs_detail = knobs_detail
         self.lower_dim_info = lower_dim_info
+        self.input_space_adapter = None
     def init_Configuration(self):
         KNOBS = list(self.knobs_detail.keys())
         for idx in range(len(KNOBS)):
@@ -55,7 +56,8 @@ class SMAC(object):
                 knob = UniformFloatHyperparameter(name, min_val, max_val, default_value=value['default'])
             self.cs.add_hyperparameter(knob)
         if self.lower_dim_info["enabled"]:
-            self.cs = LinearEmbeddingConfigSpace.create(self.cs, 1, target_dim = self.lower_dim_info["target_dim"])
+            self.input_space_adapter = LinearEmbeddingConfigSpace.create(self.cs, 1, target_dim = self.lower_dim_info["target_dim"])
+            self.cs = self.input_space_adapter.target
             print("Finished converting SMAC to lower dimensions")
             print(self.cs)
         self.scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternative runtime)
@@ -65,8 +67,10 @@ class SMAC(object):
                   "memory_limit": 3072,  # adapt this to reasonable value for your hardware
                   "output_dir": "restore_me",
                   })
+        return input_space_adapter
 
-
+    def get_input_space_adapter(self):
+        return self.input_space_adapter
     def restore(self, run_id, new_run_id, load_num=-1):
         loader = SMACCLI()
         old_output_dir = "restore_me/run_" + str(run_id)
