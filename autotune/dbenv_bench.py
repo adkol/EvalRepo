@@ -18,7 +18,7 @@ import joblib
 from .knobs import logger
 from .utils.parser import ConfigParser
 from .utils.parser import parse_tpcc, parse_sysbench, parse_oltpbench, parse_cloudbench, parse_job
-from .knobs import initialize_knobs, save_knobs, get_default_knobs, knob2action
+from .knobs import initialize_knobs, save_knobs, get_default_knobs, knob2action, get_input_space_adapter
 from dynaconf import settings
 import re
 import psutil
@@ -98,7 +98,6 @@ class BenchEnv(DBEnv):
                  knobs_config,
                  num_metrics,
                  model_path,
-                 input_space_adapter=None,
                  database='mysql',
                  log_path='',
                  threads=8,
@@ -170,7 +169,11 @@ class BenchEnv(DBEnv):
             self.reinit = False
         self.y_variable = y_variable
         self.lhs_log = lhs_log
+        self.input_space_adapter = get_input_space_adapter()  #From knobs.py, not function below
 
+
+    def get_input_space_adapter(self,adapter):
+        return self.input_space_adapter 
     def generate_time(self):
         global BENCHMARK_RUNNING_TIME
         global BENCHMARK_WARMING_TIME
@@ -354,6 +357,9 @@ class BenchEnv(DBEnv):
         return state, external_metrics, resource
 
     def step(self, knobs, episode, step, best_action_applied=False, file=None):
+        #Step function used by DDPG in tuner.py's tune_DDPG function. Code to unproject low dim points
+        if self.input_space_adapter:
+            knobs = self.input_space_adapter.unproject_point(knobs)
         metrics, internal_metrics, resource = self.step_GP(knobs, best_action_applied)
         try:
             format_str = '{}|tps_{}|lat_{}|qps_{}|tpsVar_{}|latVar_{}|qpsVar_{}|cpu_{}|readIO_{}|writeIO_{}|virtaulMem_{}|physical_{}|dirty_{}|hit_{}|data_{}|{}|65d\n'

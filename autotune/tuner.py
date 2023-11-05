@@ -5,7 +5,7 @@ import subprocess
 import numpy as np
 from .knobs import gen_continuous
 from .knobs import logger
-from .knobs import ts, knobDF2action, get_data_for_mapping, initialize_knobs, knob2action,  knobDF2action_onehot, gen_continuous_one_hot
+from .knobs import ts, knobDF2action, get_data_for_mapping, initialize_knobs, knob2action,  knobDF2action_onehot, gen_continuous_one_hot, low_level_project_input, get_input_space_adapter
 from .gp_torch import initialize_GP_model, anlytic_optimize_acqf_and_get_observation, get_acqf
 from botorch import fit_gpytorch_model
 import torch
@@ -100,6 +100,7 @@ class MySQLTuner:
         if self.workload_map:
             self.mapper = WorkloadMapping(self.data_repo, self.env.knobs_detail, self.y_variable)
         self.rgpe = rgpe
+        # self.lower_dim = None
         self.lower_dim = {
             "enabled" : True,
             "target_dim" : 16
@@ -364,7 +365,7 @@ class MySQLTuner:
                         #logger.info('[ddpg] Action: {}'.format(action))
 
                 logger.info('[ddpg] Action: {}'.format(action))
-                current_knob = generate_knobs(action, 'ddpg')
+                current_knob = generate_knobs(action, 'ddpg')   
                 reward, state_, done, score, metrics = self.env.step(current_knob, episode, t, best_action_applied, self.lhs_log)
                 if metrics[0] > best_tps:
                     best_tps = metrics[0]
@@ -431,7 +432,8 @@ class MySQLTuner:
         
         tuner_SMAC = SMAC(self.env.knobs_detail, self.lower_dim)
         tuner_SMAC.init_Configuration()
-        input_space_adapter = tuner_SMAC.get_input_space_adapter()
+        # input_space_adapter = tuner_SMAC.get_input_space_adapter()
+        # self.env.set_input_space_adapter(input_space_adapter)
         ts = int(time.time())
         if self.restore_state is not '':
             rh, stats, incumbent, tuner_SMAC.scenario = tuner_SMAC.restore(self.restore_state, ts, self.load_num)

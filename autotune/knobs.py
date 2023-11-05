@@ -100,7 +100,7 @@ KNOBS = [
 KNOB_DETAILS = None
 EXTENDED_KNOBS = None
 num_knobs = len(KNOBS)
-
+INPUT_SPACE_ADAPTER = None
 
 # Deprecated function
 def init_knobs(num_total_knobs):
@@ -214,6 +214,7 @@ def init_knobs(num_total_knobs):
 def low_level_project_input(target_dim, knobs, knob_details):
     global KNOBS
     global KNOB_DETAILS
+    global input_space_adapter
     # KNOBS = list(self.knobs_detail.keys())
     cs = ConfigurationSpace()
     for idx in range(len(knobs)):
@@ -236,21 +237,16 @@ def low_level_project_input(target_dim, knobs, knob_details):
             min_val, max_val = value['min'], value['max']
             knob = UniformFloatHyperparameter(name, min_val, max_val, default_value=value['default'])
         cs.add_hyperparameter(knob)
-    cs = LinearEmbeddingConfigSpace.create(cs, 1, target_dim = target_dim)
+    INPUT_SPACE_ADAPTER = LinearEmbeddingConfigSpace.create(cs, 1, target_dim = target_dim)
+    cs = INPUT_SPACE_ADAPTER.target
     print("Coverted DDPG ConfigSpace into lower dimension")
     print(cs)
-    # self.scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternative runtime)
-    #             "runcount-limit": 210,  # max. number of function evaluations; for this example set to a low number
-    #           "cs": self.cs,  # configuration space
-    #           "deterministic": "true",
-    #           "memory_limit": 3072,  # adapt this to reasonable value for your hardware
-    #           "output_dir": "restore_me",
-    #             })
+
 
 
 
     # Need to check if this modifies global KNOBS defined above
-    # 
+    # Setting global knobs as result of transformation
     print("Coverting from Configspace back to dict...")
     hps = cs.get_hyperparameters()
     transformed_knobs = []
@@ -278,7 +274,9 @@ def low_level_project_input(target_dim, knobs, knob_details):
 
 
 
-
+def get_input_space_adapter():
+    global INPUT_SPACE_ADAPTER
+    return INPUT_SPACE_ADAPTER
 
 def gen_continuous(action):
     knobs = {}
@@ -338,7 +336,7 @@ def save_knobs(knobs, external_metrics):
     result_str += knob_json
 
 
-def initialize_knobs(knobs_config, num, keys=[]):
+def initialize_knobs(knobs_config, num, keys=[], lower_dim = None):
     global KNOBS
     global KNOB_DETAILS
     if num == -1:
@@ -362,6 +360,9 @@ def initialize_knobs(knobs_config, num, keys=[]):
             for k in keys:
                 if k not in KNOB_DETAILS.keys():
                     KNOB_DETAILS[k] = knob_tmp[key]
+    # THIS CONVERTS ALL KNOBS TO LOWER DIM AS SOON AS INITIALIZED
+    if lower_dim:
+        low_level_project_input(lower_dim["target_dim"], KNOBS, KNOB_DETAILS)
     return KNOB_DETAILS
 
 

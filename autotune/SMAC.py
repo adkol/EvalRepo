@@ -27,11 +27,11 @@ boston = load_boston()
 
 
 class SMAC(object):
-    def __init__(self, knobs_detail, lower_dim):
+    def __init__(self, knobs_detail, lower_dim=None):
         self.cs = ConfigurationSpace()
         self.scenario = None
         self.knobs_detail = knobs_detail
-        self.lower_dim_info = lower_dim_info
+        self.lower_dim_info = lower_dim
         self.input_space_adapter = None
     def init_Configuration(self):
         KNOBS = list(self.knobs_detail.keys())
@@ -55,11 +55,11 @@ class SMAC(object):
                 min_val, max_val = value['min'], value['max']
                 knob = UniformFloatHyperparameter(name, min_val, max_val, default_value=value['default'])
             self.cs.add_hyperparameter(knob)
-        if self.lower_dim_info["enabled"]:
-            self.input_space_adapter = LinearEmbeddingConfigSpace.create(self.cs, 1, target_dim = self.lower_dim_info["target_dim"])
-            self.cs = self.input_space_adapter.target
-            print("Finished converting SMAC to lower dimensions")
-            print(self.cs)
+        # if self.lower_dim_info:
+        #     self.input_space_adapter = LinearEmbeddingConfigSpace.create(self.cs, 1, target_dim = self.lower_dim_info["target_dim"])
+        #     self.cs = self.input_space_adapter.target
+        #     print("Finished converting SMAC to lower dimensions")
+        #     print(self.cs)
         self.scenario = Scenario({"run_obj": "quality",  # we optimize quality (alternative runtime)
                   "runcount-limit": 210,  # max. number of function evaluations; for this example set to a low number
                   "cs": self.cs,  # configuration space
