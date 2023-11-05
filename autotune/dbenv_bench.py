@@ -149,7 +149,14 @@ class BenchEnv(DBEnv):
         functions = joblib.load(model_path)
         self.model = functions['model']
         self.names = functions['X-name']
-        self.knobs_detail = initialize_knobs(knobs_config, knob_num, self.names)
+
+        self.lower_dim = None
+        self.lower_dim = {
+            "enabled" : True,
+            "target_dim" : 16
+        }
+        self.knobs_detail = initialize_knobs(knobs_config, knob_num, self.names, lower_dim = self.lower_dim)
+        
         pdb.set_trace()
         self.default_knobs = get_default_knobs()
         self.rds_mode = rds_mode
