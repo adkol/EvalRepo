@@ -1,5 +1,10 @@
 # Usage:
 #python train.py  --method=GP_BOTORCH --benchmark=sysbench --workload_type=readwrite --knobs_config=mysql_all_cdbtune.json --dbname=sbtest --lhs_log=xxx.res
+from pathlib import Path
+import sys
+path_root = Path(__file__).parents[2]
+sys.path.append(str(path_root))
+print(sys.path)
 
 import os
 import argparse
