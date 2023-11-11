@@ -34,5 +34,4 @@ dynaconf
 prettytable>=2
 
 
-# required
-ConfigSpace==0.4.20
+
