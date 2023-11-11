@@ -67,10 +67,10 @@ class SMAC(object):
                   "memory_limit": 3072,  # adapt this to reasonable value for your hardware
                   "output_dir": "restore_me",
                   })
-        return input_space_adapter
+        # return input_space_adapter
 
-    def get_input_space_adapter(self):
-        return self.input_space_adapter
+    # def get_input_space_adapter(self):
+    #     return self.input_space_adapter
     def restore(self, run_id, new_run_id, load_num=-1):
         loader = SMACCLI()
         old_output_dir = "restore_me/run_" + str(run_id)
