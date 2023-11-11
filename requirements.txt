@@ -17,7 +17,7 @@ psutil
 pyDOE
 #kdtree
 scipy
-sklearn
+# sklearn
 cython
 scikit-optimize
 #smac
