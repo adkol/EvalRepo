@@ -1,9 +1,9 @@
 # smac
-from adapters.configspace.low_embeddings import LinearEmbeddingConfigSpace
-from adapters.bias_sampling import \
+from .configspace.low_embeddings import LinearEmbeddingConfigSpace
+from .bias_sampling import \
     PostgresBiasSampling, LHDesignWithBiasedSampling, special_value_scaler, \
     UniformIntegerHyperparameterWithSpecialValue
-from adapters.configspace.quantization import Quantization
+from .configspace.quantization import Quantization
 
 __all__ = [
     # smac
