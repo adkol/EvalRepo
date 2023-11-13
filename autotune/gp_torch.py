@@ -19,7 +19,7 @@ from botorch.acquisition import UpperConfidenceBound, ExpectedImprovement
 from botorch.optim import optimize_acqf
 from botorch import fit_gpytorch_model
 from botorch.acquisition.monte_carlo import qExpectedImprovement
-from botorch.sampling.samplers import SobolQMCNormalSampler
+from botorch.sampling.normal import SobolQMCNormalSampler
 from botorch.fit import fit_gpytorch_model
 from botorch.sampling import IIDNormalSampler
 from .knobs import gen_continuous
