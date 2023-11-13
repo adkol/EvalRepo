@@ -21,7 +21,7 @@ from smac.utils.io.output_directory import create_output_directory
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 
-from adapters import *
+from .adapters import *
 
 boston = load_boston()
 
