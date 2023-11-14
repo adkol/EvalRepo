@@ -1,9 +1,9 @@
 # smac
-from autotune.adapters.low_embeddings import LinearEmbeddingConfigSpace
-from .bias_sampling import \
+from .adapters.configspace.low_embeddings import LinearEmbeddingConfigSpace
+from .adapters.bias_sampling import \
     PostgresBiasSampling, LHDesignWithBiasedSampling, special_value_scaler, \
     UniformIntegerHyperparameterWithSpecialValue
-from .configspace.quantization import Quantization
+from .adapters.configspace.quantization import Quantization
 
 __all__ = [
     # smac
