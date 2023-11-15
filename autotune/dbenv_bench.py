@@ -25,6 +25,12 @@ import psutil
 import multiprocessing as mp
 from .resource_monitor import ResourceMonitor
 
+# from pathlib import Path
+# import sys
+# path_root = Path(__file__).parents[1]
+# sys.path.append(str(path_root))
+# print(sys.path)
+
 im_alive = mp.Value('b', False)
 CPU_CORE = 8
 TIMEOUT=180
@@ -143,6 +149,7 @@ class BenchEnv(DBEnv):
         self.knobs_config = knobs_config
         if database == 'mysql':
             self.knobs_detail_all = initialize_knobs("experiment/gen_knobs/mysql_all_197.json", 197)
+            # self.knobs_detail_all = initialize_knobs("/home/ubuntu/Research/EvalRepo/scripts/experiment/gen_knobs/mysql_all_197.json", 197)
         else:
             self.knobs_detail_all = initialize_knobs("experiment/pg/postgres_shap_1.json", 30) 
         #model_path = '../tuning_benchmark/surrogate/RF_{}_{}knob.joblib'.format(self.workload.lower(), knob_num)

@@ -8,6 +8,23 @@ req = ['mysql-connector-python-rf',
        'scipy',
 ]
 
+
+
+# setup(name="adapters",
+#       version="0.0.1",
+#       description="Low dimensional tuning",
+#       author="adapters",
+#       classifiers=[
+#           'Development Status :: 3 - Alpha',
+#           'Intended Audience :: Developers',
+#           'Programming Language :: Python',
+#           'Programming Language :: Python :: 3',
+#           'Topic :: Software Development',
+#       ],
+#       packages=find_packages(),
+#       include_package_data=True,
+# )
+
 setup(name="autotune",
       version="0.0.1",
       description="Database configuration tuning EA",
