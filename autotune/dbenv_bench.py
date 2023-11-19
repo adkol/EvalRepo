@@ -166,6 +166,7 @@ class BenchEnv(DBEnv):
         
         pdb.set_trace()
         self.default_knobs = get_default_knobs()
+        print("Knobs initialized...")
         self.rds_mode = rds_mode
         self.oltpbench_config_xml = oltpbench_config_xml
         self.step_count = 0

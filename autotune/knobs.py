@@ -13,6 +13,9 @@ import ast
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from adapters import *
+import sys
+from ConfigSpace.hyperparameters import CategoricalHyperparameter, \
+    UniformFloatHyperparameter, UniformIntegerHyperparameter, UniformFloatHyperparameter
 ts = int(time.time())
 logger = logger.get_logger('autotune', 'log/tune_database_{}.log'.format(ts))
 INTERNAL_METRICS_LEN = 51
@@ -217,7 +220,7 @@ def low_level_project_input(target_dim, knobs, knob_details):
     global KNOB_DETAILS
     global input_space_adapter
     # KNOBS = list(self.knobs_detail.keys())
-    cs = ConfigurationSpace()
+    cs = CS.ConfigurationSpace()
     for idx in range(len(knobs)):
         name = knobs[idx]
         value = knob_details[name]
@@ -248,7 +251,7 @@ def low_level_project_input(target_dim, knobs, knob_details):
 
     # Need to check if this modifies global KNOBS defined above
     # Setting global knobs as result of transformation
-    print("Coverting from Configspace back to dict...")
+    print("Converting from Configspace back to dict...")
     hps = cs.get_hyperparameters()
     transformed_knobs = []
     transformed_knob_info = dict()
@@ -266,7 +269,12 @@ def low_level_project_input(target_dim, knobs, knob_details):
         if isinstance(hp, UniformFloatHyperparameter):
             name = hp.name   
             transformed_knobs.append(name)
-            transformed_knob_info[name] = ['float', [hp.min, hp.max, hp.val]]    # Check to see if hp.val is how you get value oof param, and also whether [min, max, value] is how KNOB_INFO is structured
+            transformed_knob_info[name] = {         # Set stride so that there will be 100 steps. Not sure about this, chose arbitrarily to compile
+                "type": 'float',
+                'min' : hp.lower,
+                'max' : hp.upper,
+                'stride' : (hp.upper - hp.lower) // 100
+            }
         else:
             print("Something is wrong, transformed space should only be floats")
         
@@ -362,8 +370,8 @@ def initialize_knobs(knobs_config, num, keys=[], lower_dim = None):
                 if k not in KNOB_DETAILS.keys():
                     KNOB_DETAILS[k] = knob_tmp[key]
     # THIS CONVERTS ALL KNOBS TO LOWER DIM AS SOON AS INITIALIZED
-    if lower_dim:
-        low_level_project_input(lower_dim["target_dim"], KNOBS, KNOB_DETAILS)
+    # if lower_dim:
+    #     low_level_project_input(lower_dim["target_dim"], KNOBS, KNOB_DETAILS)
     return KNOB_DETAILS
 
 
