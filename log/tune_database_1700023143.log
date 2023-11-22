@@ -1,0 +1,2 @@
+[2023-11-15 04:39:13,056:dbenv_bench.py#L127:ERROR]: You should set MYSQLD env var before running the code.
+[2023-11-15 04:39:13,057:dbenv_bench.py#L129:ERROR]: You should set MYCNF env var before running the code.

@@ -58,6 +58,7 @@ if __name__ == '__main__':
     parser.add_argument('--tr_init', action='store_true', dest='tr_init', default=False, help='init for trust region')
     parser.add_argument('--load_num', type=int, default=-1, help='num of loaded configs')
     parser.add_argument('--task_id', type=str, default='box_db', help='task name for openbox')
+    parser.add_argument('--lower_dim', required=False, type=int, help='if doing search space transformation, number of dimensions to transform to')
     # rgpe
     opt = parser.parse_args()
 
@@ -66,6 +67,7 @@ if __name__ == '__main__':
         logger.error(err_msg)
         raise AutotuneError(err_msg)
 
+    
     # model
     model = ''
     if opt.method == 'DDPG':
@@ -85,16 +87,28 @@ if __name__ == '__main__':
         logger.info('model initialized with {} metric and {} actions, and option is {}'.format(
             opt.metric_num, opt.knobs_num, ddpg_opt
         ))
+    if opt.lower_dim == None:
+        lower_dim = {
+            "enabled": False
+        }
+
+    else:
+        lower_dim = {
+            "enabled": True,
+            "target_dim": opt.lower_dim
+        }
+
 
     env = BenchEnv(workload=opt.workload,
-                       knobs_config=opt.knobs_config,
-                       num_metrics=65,
-                       model_path=opt.model_path,
-                       log_path=LOG_PATH,
-                       knob_num=opt.knobs_num,
-                       y_variable=opt.y_variable,
-                       lhs_log=opt.lhs_log,
-                       )
+                    knobs_config=opt.knobs_config,
+                    num_metrics=65,
+                    model_path=opt.model_path,
+                    log_path=LOG_PATH,
+                    knob_num=opt.knobs_num,
+                    y_variable=opt.y_variable,
+                    lhs_log=opt.lhs_log,
+                    lower_dim = lower_dim
+                    )
 
     logger.info('env initialized with the following options: {}'.format(opt))
 
