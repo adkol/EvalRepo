@@ -340,7 +340,8 @@ class MySQLTuner:
             self.model.reset(self.sigma)
             t = 0
             while True:
-                logger.info('entering episode{}s step{}'.format(episode, t))
+                # if t % 5 == 0:
+                #     logger.info('entering episode{}s step{}'.format(episode, t))
                 state = current_state
                 if self.noisy:
                     self.model.sample_noise()
@@ -364,15 +365,16 @@ class MySQLTuner:
                     action = self.model.choose_action(state, 1)
                         #logger.info('[ddpg] Action: {}'.format(action))
 
-                logger.info('[ddpg] Action: {}'.format(action))
+                # logger.info('[ddpg] Action: {}'.format(action))
                 current_knob = generate_knobs(action, 'ddpg')   
-                reward, state_, done, score, metrics = self.env.step(current_knob, episode, t, best_action_applied, self.lhs_log)
+                reward, state_, done, score, metrics = self.env.step(current_knob, episode, t, best_action_applied, self.lhs_log, no_log=True)
                 if metrics[0] > best_tps:
                     best_tps = metrics[0]
                     best_action = action
-                logger.info('[ddpg][Episode: {}][Step: {}][Metric tps:{} lat:{} qps:{}][Reward: {} Score: {}]'.format(
-                    episode, t, metrics[0], metrics[1], metrics[2], reward, score
-                ))
+                if t % 5 == 0:
+                    logger.info('[ddpg][Episode: {}][Step: {}][Metric tps:{} lat:{} qps:{}][Reward: {} Score: {}]'.format(
+                        episode, t, metrics[0], metrics[1], metrics[2], reward, score
+                    ))
 
                 if metrics[0] < 0:
                     next_state = state
@@ -399,12 +401,12 @@ class MySQLTuner:
                     self.accumulate_loss[0] += sum(x[0] for x in losses)
                     self.accumulate_loss[1] += sum(x[1] for x in losses)
 
-                    logger.info('[ddpg][Episode: {}][Step: {}] Critic: {} Actor: {})'.format(
-                        episode, t, self.accumulate_loss[0] / self.train_step, self.accumulate_loss[1] / self.train_step
-                    ))
+                    # logger.info('[ddpg][Episode: {}][Step: {}] Critic: {} Actor: {})'.format(
+                    #     episode, t, self.accumulate_loss[0] / self.train_step, self.accumulate_loss[1] / self.train_step
+                    # ))
 
                 t += 1
-                logger.info('The end of global step {}.'.format(global_t))
+                # logger.info('The end of global step {}.'.format(global_t))
                 global_t += 1
                 self.step_counter += 1
 
@@ -413,8 +415,8 @@ class MySQLTuner:
                     self.model.replay_memory.save('save_memory/{}.pkl'.format(self.expr_name))
                     save_state_actions(self.fine_state_actions, 'save_state_actions/{}.pkl'.format(self.expr_name))
 
-                if self.step_counter % 5 == 0:
-                    self.model.save_model('model_params', title='{}_{}'.format(self.expr_name, self.step_counter))
+                # if self.step_counter % 5 == 0:
+                #     self.model.save_model('model_params', title='{}_{}'.format(self.expr_name, self.step_counter))
 
                 if t >= 100:
                     done = True

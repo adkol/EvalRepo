@@ -279,10 +279,10 @@ class DDPG(object):
     def _sample_batch(self):
         batch, idx = self.replay_memory.sample(self.batch_size)
         # batch = self.replay_memory.sample(self.batch_size)
-        states = list(map(lambda x: x[0].tolist(), batch))
-        actions = list(map(lambda x: x[1].tolist(), batch))
+        states = list(map(lambda x: x[0], batch))
+        actions = list(map(lambda x: x[1], batch))
         rewards = list(map(lambda x: x[2], batch))
-        next_states = list(map(lambda x: x[3].tolist(), batch))
+        next_states = list(map(lambda x: x[3], batch))
         terminates = list(map(lambda x: x[4], batch))
 
         return idx, states, next_states, actions, rewards, terminates
@@ -292,9 +292,9 @@ class DDPG(object):
         self.actor.eval()
         self.target_critic.eval()
         self.target_actor.eval()
-        batch_state = self.normalizer([state.tolist()])
-        batch_next_state = self.normalizer([next_state.tolist()])
-        current_value = self.critic(batch_state, DDPG.totensor([action.tolist()]))
+        batch_state = self.normalizer([state])
+        batch_next_state = self.normalizer([next_state])
+        current_value = self.critic(batch_state, DDPG.totensor([action]))
         target_action = self.target_actor(batch_next_state)
         target_value = DDPG.totensor([reward]) \
             + DDPG.totensor([0 if x else 1 for x in [terminate]]) \
@@ -306,7 +306,7 @@ class DDPG(object):
         self.critic.train()
         self.target_critic.train()
         self.replay_memory.add(error, (state, action, reward, next_state, terminate))
-        logger.info('replay_memory add state: {}'.format(state))
+        # logger.info('replay_memory add state: {}'.format(state))
 
     def delta_action_value(self, action0, action1, current_value0, current_value1):
         delta_action = abs(action1 - action0).sum(axis=0)
@@ -375,10 +375,10 @@ class DDPG(object):
             x: np.array, current state
         """
         self.actor.eval()
-        act = self.actor(self.normalizer([x.tolist()])).squeeze(0)
+        act = self.actor(self.normalizer([x])).squeeze(0)
         self.actor.train()
         action = act.data.numpy()
-        logger.info('[ddpg] Action before OUProcess: {}'.format(action))
+        # logger.info('[ddpg] Action before OUProcess: {}'.format(action))
         if self.ouprocess:
             action += self.noise.noise()  * coff
         return action.clip(0, 1)

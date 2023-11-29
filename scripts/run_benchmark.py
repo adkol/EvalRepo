@@ -97,14 +97,15 @@ if __name__ == '__main__':
             "enabled": True,
             "target_dim": opt.lower_dim
         }
-
-
+    knobs_num = opt.knobs_num
+    if lower_dim["enabled"] and opt.method=="DDPG":
+        knobs_num = lower_dim["target_dim"]
     env = BenchEnv(workload=opt.workload,
                     knobs_config=opt.knobs_config,
                     num_metrics=65,
                     model_path=opt.model_path,
                     log_path=LOG_PATH,
-                    knob_num=opt.knobs_num,
+                    knob_num=knobs_num,
                     y_variable=opt.y_variable,
                     lhs_log=opt.lhs_log,
                     lower_dim = lower_dim

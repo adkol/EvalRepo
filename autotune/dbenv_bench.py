@@ -369,11 +369,11 @@ class BenchEnv(DBEnv):
         logger.info("[step {}] default:{}".format(self.step_count, res))
         return state, external_metrics, resource
 
-    def step(self, knobs, episode, step, best_action_applied=False, file=None):
+    def step(self, knobs, episode, step, best_action_applied=False, file=None, no_log=False):
         #Step function used by DDPG in tuner.py's tune_DDPG function. Code to unproject low dim points
         if self.input_space_adapter:
             knobs = self.input_space_adapter.unproject_point(knobs)
-        metrics, internal_metrics, resource = self.step_GP(knobs, best_action_applied)
+        metrics, internal_metrics, resource = self.step_GP(knobs, best_action_applied, no_log)
         try:
             format_str = '{}|tps_{}|lat_{}|qps_{}|tpsVar_{}|latVar_{}|qpsVar_{}|cpu_{}|readIO_{}|writeIO_{}|virtaulMem_{}|physical_{}|dirty_{}|hit_{}|data_{}|{}|65d\n'
             res = format_str.format(knobs, str(metrics[0]), str(metrics[1]), str(metrics[2]),
@@ -407,7 +407,7 @@ class BenchEnv(DBEnv):
 
 
 
-    def step_GP(self, knobs, best_action_applied=False):
+    def step_GP(self, knobs, best_action_applied=False, no_log = False):
         #return np.random.rand(6), np.random.rand(65), np.random.rand(8)
 
         self.step_count = self.step_count + 1
@@ -422,10 +422,11 @@ class BenchEnv(DBEnv):
                                 external_metrics[5],
                                 resource[0], resource[1], resource[2], resource[3], resource[4],
                                 resource[5], resource[6], resource[7], list(internal_metrics))
-        if best_action_applied:
-            logger.info("[step {}] best:{}".format(self.step_count, res))
-        else:
-            logger.info("[step {}] result:{}".format(self.step_count, res))
+        if not no_log or self.step_count % 5 == 0: #Print only for last step in each episode if DDPG
+            if best_action_applied:
+                logger.info("[step {}] best:{}".format(self.step_count, res))
+            else:
+                logger.info("[step {}] result:{}".format(self.step_count, res))
         return external_metrics, internal_metrics, resource
 
 

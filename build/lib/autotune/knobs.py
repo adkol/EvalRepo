@@ -245,7 +245,7 @@ def low_level_project_input(target_dim, knobs, knob_details):
 
     INPUT_SPACE_ADAPTER = LinearEmbeddingConfigSpace.create(cs, 1, target_dim = target_dim)
     cs = INPUT_SPACE_ADAPTER.target
-    print("Coverted DDPG ConfigSpace into lower dimension")
+    print("Coverted ConfigSpace into lower dimension")
     print(cs)
 
 
@@ -276,7 +276,7 @@ def low_level_project_input(target_dim, knobs, knob_details):
                 'min' : hp.lower,
                 'max' : hp.upper,
                 'default': hp.default_value,
-                'stride' : (hp.upper - hp.lower) // 100
+                'stride' : (hp.upper - hp.lower) / 100
             }
         else:
             print("Something is wrong, transformed space should only be floats")
@@ -320,6 +320,7 @@ def gen_continuous(action):
             delta = (max_val - min_val) * action[idx]
             eval_value = min_val + delta
             eval_value = max(eval_value, min_val)
+
             all_vals = np.arange(min_val, max_val, value['stride'])
             indx = bisect.bisect_left(all_vals, eval_value)
             if indx == len(all_vals): indx -= 1
